@@ -35,11 +35,36 @@
                         <ModelVisual3D>
                                 <!-- Transformation Definition -->
                                 <ModelVisual3D.Transform>
-                                        <RotateTransform3D>
-                                                <RotateTransform3D.Rotation>
-                                                        <AxisAngleRotation3D x:Name="cubeRotation" Axis="0, 1, 0" Angle="0"/>
-                                                </RotateTransform3D.Rotation>
-                                        </RotateTransform3D>
+                                        <Transform3DGroup>
+                                                <!--Rotation definitions-->
+                                                <!--X-->
+                                                <RotateTransform3D>
+                                                        <RotateTransform3D.Rotation>
+                                                                
+                                                                <AxisAngleRotation3D x:Name="cubeRotationX" Axis="1, 0, 0" Angle="0"/>
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationY" Axis="0, 1, 0" Angle="0"/> -->
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationZ" Axis="0, 0, 1" Angle="0"/> -->
+                                                        </RotateTransform3D.Rotation>
+                                                </RotateTransform3D>
+                                                <!--Y-->
+                                                <RotateTransform3D>
+                                                        <RotateTransform3D.Rotation>
+                                                                
+                                                                <AxisAngleRotation3D x:Name="cubeRotationY" Axis="0, 1, 0" Angle="0"/>
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationY" Axis="0, 1, 0" Angle="0"/> -->
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationZ" Axis="0, 0, 1" Angle="0"/> -->
+                                                        </RotateTransform3D.Rotation>
+                                                </RotateTransform3D>
+                                                <!--Z-->
+                                                <RotateTransform3D>
+                                                        <RotateTransform3D.Rotation>
+                                                                
+                                                                <AxisAngleRotation3D x:Name="cubeRotationZ" Axis="0, 0, 1" Angle="0"/>
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationY" Axis="0, 1, 0" Angle="0"/> -->
+                                                                <!-- <AxisAngleRotation3D x:Name="cubeRotationZ" Axis="0, 0, 1" Angle="0"/> -->
+                                                        </RotateTransform3D.Rotation>
+                                                </RotateTransform3D>
+                                        </Transform3DGroup>
                                 </ModelVisual3D.Transform>
                                 
                                 <ModelVisual3D.Content>

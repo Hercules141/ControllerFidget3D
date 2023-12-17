@@ -27,8 +27,7 @@ namespace ControllerFidget3D
         {
             InitializeComponent();
             
-           
-            
+            // init camera
             _camera = new PerspectiveCamera
             {
                 Position = new Point3D(5, 5, 5),
@@ -36,6 +35,9 @@ namespace ControllerFidget3D
                 UpDirection = new Vector3D(0, 0, 1)
             };
             MyViewPort3D.Camera = _camera;
+            
+            // import blender model
+            
             
             // set Controller Event Handler
             controllerTimer = new Timer(16);
@@ -76,8 +78,6 @@ namespace ControllerFidget3D
                 
             } else if (e.LeftButton == MouseButtonState.Pressed)
             {
-                // rotate cube
-                cubeRotation.Angle += 5;
 
             }
 
@@ -99,9 +99,21 @@ namespace ControllerFidget3D
                     _camera.Position,
                     new Vector3D(controller.leftThumb.X, controller.leftThumb.Y, controller.leftTrigger/255 - controller.rightTrigger/255)
                 );
-                // update camera angle, actually vector..
-                _camera.LookDirection += new Vector3D(controller.rightThumb.X/10*-1, controller.rightThumb.Y/10*-1, 0);
+                // // update camera angle, actually vector..
+                // _camera.LookDirection += new Vector3D(controller.rightThumb.X/10*-1, controller.rightThumb.Y/10*-1, 0);
                 
+                // cubeRotation = new AxisAngleRotation3D(
+                //     new Vector3D(0,0,1),
+                //     controller.rightThumb.X
+                // );
+
+                cubeRotationX.Angle = controller.rightThumb.X * 10;
+                cubeRotationY.Angle = controller.rightThumb.Y * 10;
+                
+                
+
+                // cubeRotation.Angle = controller.rightThumb.X;
+
             });
         }
 
