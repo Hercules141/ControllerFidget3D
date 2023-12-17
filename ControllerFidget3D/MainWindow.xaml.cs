@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Channels;
-using System.Threading;
+using System.IO;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using HelixToolkit.Wpf;
 using Timer = System.Timers.Timer;
 
 namespace ControllerFidget3D
@@ -22,23 +19,13 @@ namespace ControllerFidget3D
 
         private Timer controllerTimer;
         private int pollCounter;
-        
+
         public MainWindow()
         {
             InitializeComponent();
-            
-            // init camera
-            _camera = new PerspectiveCamera
-            {
-                Position = new Point3D(5, 5, 5),
-                LookDirection = new Vector3D(-5, -5, -5),
-                UpDirection = new Vector3D(0, 0, 1)
-            };
-            MyViewPort3D.Camera = _camera;
-            
-            // import blender model
-            
-            
+
+            setUpHelixModel();
+
             // set Controller Event Handler
             controllerTimer = new Timer(16);
             controllerTimer.Elapsed += (sender, args) => OnControllerPoll();
@@ -46,85 +33,58 @@ namespace ControllerFidget3D
             
         }
 
-        private void Viewport3D_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            _lastMousePosition = e.GetPosition(this);
-            _mousePressed = true;
-            MyViewPort3D.CaptureMouse();
-        }
-
-        private void Viewport3D_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            _mousePressed = false;
-            MyViewPort3D.ReleaseMouseCapture();
-        }
-
-        private void Viewport3D_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_mousePressed) return;
-            
-            var currentPosition = e.GetPosition(this);
-            var dx = currentPosition.X - _lastMousePosition.X;
-            var dy = currentPosition.Y - _lastMousePosition.Y;
-
-
-            if (e.RightButton == MouseButtonState.Pressed)
-            {
-                // adjust camera
-                var cameraDx = dx / 100;
-                var cameraDy = dy / 100;
-                
-                _camera.Position = Point3D.Add(_camera.Position, new Vector3D(cameraDx, cameraDy, 0));
-                
-            } else if (e.LeftButton == MouseButtonState.Pressed)
-            {
-
-            }
-
-            // controllerConnectedTextBlock.Text = controller.rightThumb.X.ToString();
-            
-            _lastMousePosition = currentPosition;
-        }
-        
         // controller event handler
         public void OnControllerPoll()
         {
             Dispatcher.Invoke(() =>
             {
-                controller.Update();
-                updateControllerInfoDisplay();
-                
-                // update camera position
-                _camera.Position =  Point3D.Add(
-                    _camera.Position,
-                    new Vector3D(controller.leftThumb.X, controller.leftThumb.Y, controller.leftTrigger/255 - controller.rightTrigger/255)
-                );
-                // // update camera angle, actually vector..
-                // _camera.LookDirection += new Vector3D(controller.rightThumb.X/10*-1, controller.rightThumb.Y/10*-1, 0);
-                
-                // cubeRotation = new AxisAngleRotation3D(
-                //     new Vector3D(0,0,1),
-                //     controller.rightThumb.X
-                // );
-
-                cubeRotationX.Angle = controller.rightThumb.X * 10;
-                cubeRotationY.Angle = controller.rightThumb.Y * 10;
-                
-                
-
-                // cubeRotation.Angle = controller.rightThumb.X;
-
+                if (controller.connected)
+                {
+                    controller.Update();
+                    updateControllerInfoDisplay();
+                } else
+                {
+                    controller.tryConnect();
+                }
             });
         }
 
+
+        private void setUpHelixModel()
+        {
+            // HelixViewPort3D setup
+            // var meshBuilder = new MeshBuilder(false, false);
+            // meshBuilder.AddBox(new Point3D(0, 0, 0), 2, 2, 2);
+            // var mesh = meshBuilder.ToMesh();
+            //
+            // var blueMaterial = MaterialHelper.CreateMaterial(Colors.Blue);
+            // var modelVisual3D = new ModelVisual3D
+            // {
+            //     Content = new GeometryModel3D { Geometry = mesh, Material = blueMaterial }
+            // };
+            //
+            // MyHelixViewport.Children.Add(modelVisual3D);
+            
+            // import blender model
+            var reader = new ObjReader();
+            var model3DGroup = new Model3DGroup();
+            var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
+            var model = reader.Read(modelPath);
+            // var model = reader.Read("X:\\Home\\Projects\\Rider\\ControllerFidget3D\\ControllerFidget3D\\res\\field.obj");
+            // var model = reader.Read(@"ControllerFidget3D/res/field.obj");
+            model3DGroup.Children.Add(model);
+            // MyHelixViewport.Children.Add(new ModelVisual3D{Content = model3DGroup});
+            MyHelixViewport.Children.Add(new ModelVisual3D { Content = model3DGroup });
+        }
+        
         
         
         
         // helper functions
         private void updateControllerInfoDisplay()
         {
-            controllerConnectedTextBlock.Text = controller.connected.ToString();
-            controllerInfoTextBlock.Text = "Controller Info:    "
+            controllerConnectedTextBlock.Text = "Controller Connected: " + controller.connected;
+            controllerInfoTextBlock.Text = "\nController Info:    "
                                            + "\nLeft Thumb X:   " + controller.leftThumb.X
                                            + "\nLeft Thumb Y:   " + controller.leftThumb.Y
                                            + "\nRight Thumb X:  " + controller.rightThumb.X

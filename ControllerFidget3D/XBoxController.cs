@@ -15,9 +15,7 @@ namespace ControllerFidget3D
 
         public XBoxController()
         {
-            controller = new Controller(UserIndex.One);
-            Console.WriteLine("Controller State: " + controller.IsConnected);
-            connected = controller.IsConnected;
+            tryConnect();
         }
 
         public void Update()
@@ -34,6 +32,12 @@ namespace ControllerFidget3D
 
             leftTrigger = gamepad.LeftTrigger;
             rightTrigger = gamepad.RightTrigger;
+        }
+
+        public void tryConnect()
+        {
+            controller = new Controller(UserIndex.One);
+            connected = controller.IsConnected;
         }
     }
 }

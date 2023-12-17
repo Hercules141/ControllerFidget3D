@@ -22,3 +22,5 @@ X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.p
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.XInput.pdb
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.XInput.xml
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\BulletSharp.dll
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\ControllerFidget3D_Content.g.cs
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\res\field.obj
