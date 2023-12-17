@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
@@ -26,7 +27,7 @@ namespace ControllerFidget3D
             };
             MyViewPort3D.Camera = _camera;
         }
-        
+
         private void Viewport3D_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _lastMousePosition = e.GetPosition(this);
@@ -42,17 +43,29 @@ namespace ControllerFidget3D
 
         private void Viewport3D_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_mousePressed)
+            if (!_mousePressed) return;
+            
+            var currentPosition = e.GetPosition(this);
+            var dx = currentPosition.X - _lastMousePosition.X;
+            var dy = currentPosition.Y - _lastMousePosition.Y;
+
+
+            if (e.RightButton == MouseButtonState.Pressed)
             {
-                var currentPosition = e.GetPosition(this);
-                var dx = currentPosition.X - _lastMousePosition.X;
-                var dy = currentPosition.Y - _lastMousePosition.Y;
+                // adjust camera
+                var cameraDx = dx / 100;
+                var cameraDy = dy / 100;
+                
+                _camera.Position = Point3D.Add(_camera.Position, new Vector3D(cameraDx, cameraDy, 0));
+                
+            } else if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                // rotate cube
+                cubeRotation.Angle += 5;
 
-                // Update camera position based on dx and dy
-                // ...
-
-                _lastMousePosition = currentPosition;
             }
+
+            _lastMousePosition = currentPosition;
         }
     }
 }

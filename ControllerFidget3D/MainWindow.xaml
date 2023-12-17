@@ -21,8 +21,18 @@
 
                         <!-- Cube Model -->
                         <ModelVisual3D>
+                                <!-- Transformation Definition -->
+                                <ModelVisual3D.Transform>
+                                        <RotateTransform3D>
+                                                <RotateTransform3D.Rotation>
+                                                        <AxisAngleRotation3D x:Name="cubeRotation" Axis="0, 1, 0" Angle="0"/>
+                                                </RotateTransform3D.Rotation>
+                                        </RotateTransform3D>
+                                </ModelVisual3D.Transform>
+                                
                                 <ModelVisual3D.Content>
-                                        <GeometryModel3D>
+                                        <GeometryModel3D
+                                                x:Name="MyCube">
                                                 <GeometryModel3D.Geometry>
                                                         <!-- Mesh geometry (cube) -->
                                                         <MeshGeometry3D 
