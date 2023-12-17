@@ -9,11 +9,23 @@
         WindowState="Maximized">
     
         <Grid>
+                <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                
+                <TextBlock Name="controllerConnectedTextBlock" Grid.Row="0"></TextBlock>
+                <TextBlock Name="controllerInfoTextBlock" Grid.Row="1"></TextBlock>
+                
                 <Viewport3D
                         Name="MyViewPort3D"
                         MouseLeftButtonDown="Viewport3D_MouseLeftButtonDown"
                         MouseLeftButtonUp="Viewport3D_MouseLeftButtonUp"
-                        MouseMove="Viewport3D_MouseMove">
+                        MouseMove="Viewport3D_MouseMove"
+                        Grid.RowSpan="3">
+                        
                         <!-- Camera -->
                         <Viewport3D.Camera>
                                 <PerspectiveCamera Position="5, 5, 5" LookDirection="-5, -5, -5" UpDirection="0, 1, 0" />

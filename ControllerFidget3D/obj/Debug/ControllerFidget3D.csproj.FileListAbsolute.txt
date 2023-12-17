@@ -13,3 +13,12 @@ X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\Controlle
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\ControllerFidget3D.csproj.CoreCompileInputs.cache
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\ControllerFidget3D.exe
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\ControllerFidget3D.pdb
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\HelixToolkit.Wpf.dll
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\HelixToolkit.Wpf.xml
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\ControllerFidget3D.csproj.CopyComplete
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.dll
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.XInput.dll
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.pdb
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.XInput.pdb
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\SharpDX.XInput.xml
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\BulletSharp.dll
