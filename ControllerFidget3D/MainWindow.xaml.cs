@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -14,17 +13,23 @@ namespace ControllerFidget3D
     /// </summary>
     public partial class MainWindow
     {
-        private Point _lastMousePosition;
-        private bool _mousePressed;
-        private PerspectiveCamera _camera;
         private XBoxController controller = new XBoxController();
-
+        
+        // physics world 
+        private PhysicsSimulation physicsWorld;
+        
+        // timers
         private Timer controllerTimer;
-        private int pollCounter;
+        private Timer renderTimer;
 
+        // objects
         private Model3DGroup gameBoard;
         private AxisAngleRotation3D gameBoardRotationX;
         private AxisAngleRotation3D gameBoardRotationY;
+
+        private Model3D ball;
+        private ModelVisual3D ballModelVisual;
+        private Transform3D ballTransform;
 
         public MainWindow()
         {
@@ -32,18 +37,38 @@ namespace ControllerFidget3D
 
             setUpHelix();
 
-            setUpPhsics();
+            setUpPhysics();
             
             // set Controller Event Handler
             controllerTimer = new Timer(16);
             controllerTimer.Elapsed += (sender, args) => OnControllerPoll();
             controllerTimer.Start();
             
+            // set Render Timer
+            renderTimer = new Timer(16);
+            renderTimer.Elapsed += (sender, args) =>
+            {
+                renderTick();
+            };
+            renderTimer.Start();
+
         }
 
-        private void setUpPhsics()
+        private void renderTick()
         {
-            new PhysicsSimulation();
+            Dispatcher.Invoke(() => {
+                // combine physics pos downstream to visual ball
+                var ballPosX = physicsWorld.ballPosition.X;
+                var ballPosY = physicsWorld.ballPosition.Y;
+                var ballPosZ = physicsWorld.ballPosition.Z;
+            
+                ballModelVisual.Transform = new TranslateTransform3D(new Vector3D(ballPosX, ballPosY, ballPosZ));
+            });
+        }
+
+        private void setUpPhysics()
+        {
+            physicsWorld = new PhysicsSimulation();
         }
 
         // controller event handler
@@ -91,7 +116,17 @@ namespace ControllerFidget3D
             model3DGroup.Children.Add(gameBoard);
             var modelVisual3DModel = new ModelVisual3D { Content = model3DGroup };
             MyHelixViewport.Children.Add(modelVisual3DModel);
-
+            
+            // test ball mirroring in viewPort
+            // setup ball in viewport
+            var material = MaterialHelper.CreateMaterial(Colors.Blue);
+            var sphere = new MeshBuilder(true, true);
+            sphere.AddSphere(new Point3D(0, 0, 0), 10); // Center (0,0,0) and radius 1
+            var sphereModel = new GeometryModel3D(sphere.ToMesh(), material);
+            ballModelVisual = new ModelVisual3D();  //ModelVisual allows setting Transforms
+            ballModelVisual.Content = sphereModel;
+            MyHelixViewport.Children.Add(ballModelVisual);
+            
             // set the rotation axis for the game Board model
             var transformGroup = new Transform3DGroup();
             gameBoardRotationX = new AxisAngleRotation3D(new Vector3D(1,0,0), 0);   // global rotation "handle"
@@ -100,10 +135,8 @@ namespace ControllerFidget3D
             transformGroup.Children.Add(new RotateTransform3D(gameBoardRotationY));
             gameBoard.Transform = transformGroup;
         }
-        
-        
-        
-        
+
+
         // helper functions
         private void updateControllerInfoDisplay()
         {

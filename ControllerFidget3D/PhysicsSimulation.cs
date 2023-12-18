@@ -20,7 +20,10 @@ namespace ControllerFidget3D{
 
         // test objects
         RigidBody groundBody;
-        private RigidBody ball;
+        
+        public RigidBody ball;
+        public Vector3 ballPosition;
+
 
         public PhysicsSimulation()
         {
@@ -71,7 +74,8 @@ namespace ControllerFidget3D{
             // test
             Matrix ballTransform;
             ball.MotionState.GetWorldTransform(out ballTransform);
-            Vector3 ballPosition = ballTransform.Origin;
+            ballPosition = ballTransform.Origin;
+
             Console.WriteLine("Ball Pos: " + ballPosition);
         }
     }
