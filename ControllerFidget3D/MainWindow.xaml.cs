@@ -32,11 +32,18 @@ namespace ControllerFidget3D
 
             setUpHelix();
 
+            setUpPhsics();
+            
             // set Controller Event Handler
             controllerTimer = new Timer(16);
             controllerTimer.Elapsed += (sender, args) => OnControllerPoll();
             controllerTimer.Start();
             
+        }
+
+        private void setUpPhsics()
+        {
+            new PhysicsSimulation();
         }
 
         // controller event handler

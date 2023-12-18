@@ -1,7 +1,7 @@
 ﻿ControllerFidget3D
 
 
-winexe
+exe
 C#
 .cs
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\
@@ -11,9 +11,9 @@ false
 DEBUG;TRACE
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\App.xaml
 1219584333
-11322124559
-5-1785434561
-13-482812559
+21661370740
+6-727137925
+141091753732
 MainWindow.xaml;
 
 False

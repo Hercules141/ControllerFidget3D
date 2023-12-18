@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libbulletc.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("res/field.obj")]
 
 
