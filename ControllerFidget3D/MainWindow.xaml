@@ -7,7 +7,12 @@
         xmlns:local="clr-namespace:ControllerFidget3D"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="600"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        WindowStyle="None"
+        Topmost="False"
+        
+        KeyDown="MainWindow_OnKeyDown"
+        >
     
         <Grid>
                 <Grid.RowDefinitions>
@@ -19,9 +24,18 @@
                 <TextBlock Name="controllerConnectedTextBlock" Grid.Row="0" Padding="10"/>
                 <TextBlock Name="controllerInfoTextBlock" Grid.Row="1" Padding="10"/>
         
-                <helix:HelixViewport3D Name="MyHelixViewport" Grid.RowSpan="3" 
-                                       ShowCoordinateSystem="True" ShowFrameRate="True">
-                        <helix:BoxVisual3D Center="0, 0, 0" Width="2" Length="2" Height="2" Fill="Blue"/>
+                <helix:HelixViewport3D 
+                        Name="MyHelixViewport" 
+                        Grid.RowSpan="3" 
+                        ShowCoordinateSystem="False"
+                        ShowCameraInfo="False"
+                        ShowCameraTarget="False"
+                        ShowFrameRate="True"
+                        IsZoomEnabled="True"
+                        IsPanEnabled="False"
+                        IsRotationEnabled="True"
+                        ShowViewCube="False">
+                        <!-- <helix:BoxVisual3D Center="0, 0, 0" Width="2" Length="2" Height="2" Fill="Blue"/> -->
                         <helix:LightVisual3D>
                                 <helix:SunLight></helix:SunLight>
                         </helix:LightVisual3D>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf;
 using Timer = System.Timers.Timer;
@@ -20,11 +22,15 @@ namespace ControllerFidget3D
         private Timer controllerTimer;
         private int pollCounter;
 
+        private Model3DGroup gameBoard;
+        private AxisAngleRotation3D gameBoardRotationX;
+        private AxisAngleRotation3D gameBoardRotationY;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            setUpHelixModel();
+            setUpHelix();
 
             // set Controller Event Handler
             controllerTimer = new Timer(16);
@@ -41,6 +47,8 @@ namespace ControllerFidget3D
                 if (controller.connected)
                 {
                     controller.Update();
+                    //visual transforms to objects
+                    updateObjectsByControllerInput();
                     updateControllerInfoDisplay();
                 } else
                 {
@@ -49,32 +57,41 @@ namespace ControllerFidget3D
             });
         }
 
-
-        private void setUpHelixModel()
+        private void updateObjectsByControllerInput()
         {
-            // HelixViewPort3D setup
-            // var meshBuilder = new MeshBuilder(false, false);
-            // meshBuilder.AddBox(new Point3D(0, 0, 0), 2, 2, 2);
-            // var mesh = meshBuilder.ToMesh();
-            //
-            // var blueMaterial = MaterialHelper.CreateMaterial(Colors.Blue);
-            // var modelVisual3D = new ModelVisual3D
-            // {
-            //     Content = new GeometryModel3D { Geometry = mesh, Material = blueMaterial }
-            // };
-            //
-            // MyHelixViewport.Children.Add(modelVisual3D);
+            // handle x rotation
+            var xAngle = controller.rightThumb.X * 30;   // 30 deg tiltable table
+            // gameBoard.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1,0,0), xAngle));
+            gameBoardRotationX.Angle = xAngle;
             
+            // handle y rotation
+            var yAngle = controller.rightThumb.Y * 30;
+            // gameBoard.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0,1,0), yAngle));
+            gameBoardRotationY.Angle = yAngle;
+
+            
+        }
+
+
+        private void setUpHelix()
+        {
             // import blender model
             var reader = new ObjReader();
             var model3DGroup = new Model3DGroup();
             var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
-            var model = reader.Read(modelPath);
-            // var model = reader.Read("X:\\Home\\Projects\\Rider\\ControllerFidget3D\\ControllerFidget3D\\res\\field.obj");
-            // var model = reader.Read(@"ControllerFidget3D/res/field.obj");
-            model3DGroup.Children.Add(model);
-            // MyHelixViewport.Children.Add(new ModelVisual3D{Content = model3DGroup});
-            MyHelixViewport.Children.Add(new ModelVisual3D { Content = model3DGroup });
+            
+            gameBoard = reader.Read(modelPath);
+            model3DGroup.Children.Add(gameBoard);
+            var modelVisual3DModel = new ModelVisual3D { Content = model3DGroup };
+            MyHelixViewport.Children.Add(modelVisual3DModel);
+
+            // set the rotation axis for the game Board model
+            var transformGroup = new Transform3DGroup();
+            gameBoardRotationX = new AxisAngleRotation3D(new Vector3D(1,0,0), 0);   // global rotation "handle"
+            gameBoardRotationY = new AxisAngleRotation3D(new Vector3D(0,1,0), 0); // global rotation "handle"
+            transformGroup.Children.Add(new RotateTransform3D(gameBoardRotationX));
+            transformGroup.Children.Add(new RotateTransform3D(gameBoardRotationY));
+            gameBoard.Transform = transformGroup;
         }
         
         
@@ -84,16 +101,13 @@ namespace ControllerFidget3D
         private void updateControllerInfoDisplay()
         {
             controllerConnectedTextBlock.Text = "Controller Connected: " + controller.connected;
-            controllerInfoTextBlock.Text = "\nController Info:    "
-                                           + "\nLeft Thumb X:   " + controller.leftThumb.X
-                                           + "\nLeft Thumb Y:   " + controller.leftThumb.Y
-                                           + "\nRight Thumb X:  " + controller.rightThumb.X
-                                           + "\nRight Thumb Y:  " + controller.rightThumb.Y
+            controllerInfoTextBlock.Text = controller.getControllerInfo();
+        }
 
-                                           + "\nL Trigger:      " + controller.leftTrigger
-                                           + "\nR Trigger:      " + controller.rightTrigger
-
-                                           + "\ndead thing:     " + controller.deadZone;
+        // this belongs here
+        private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
+        {   
+            if (e.Key == Key.Escape) Close();
         }
     }
 }
