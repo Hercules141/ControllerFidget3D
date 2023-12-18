@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using BulletSharp.Math;
 using HelixToolkit.Wpf;
 using Timer = System.Timers.Timer;
 
@@ -27,7 +28,6 @@ namespace ControllerFidget3D
         private AxisAngleRotation3D gameBoardRotationX;
         private AxisAngleRotation3D gameBoardRotationY;
 
-        private Model3D ball;
         private ModelVisual3D ballModelVisual;
         private Transform3D ballTransform;
 
@@ -101,32 +101,48 @@ namespace ControllerFidget3D
             // gameBoard.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0,1,0), yAngle));
             gameBoardRotationY.Angle = yAngle;
 
-            
+            // move ball
+            physicsWorld.applyForceToBall(new Vector3(controller.leftThumb.X, 0, controller.leftThumb.Y) * 100);
         }
 
 
         private void setUpHelix()
         {
-            // import blender model
+            // import blender model board
             var reader = new ObjReader();
-            var model3DGroup = new Model3DGroup();
-            var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
             
-            gameBoard = reader.Read(modelPath);
+            var model3DGroup = new Model3DGroup();
+            var gameBoardModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
+            
+            gameBoard = reader.Read(gameBoardModelPath);
             model3DGroup.Children.Add(gameBoard);
             var modelVisual3DModel = new ModelVisual3D { Content = model3DGroup };
             MyHelixViewport.Children.Add(modelVisual3DModel);
             
-            // test ball mirroring in viewPort
-            // setup ball in viewport
-            var material = MaterialHelper.CreateMaterial(Colors.Blue);
-            var sphere = new MeshBuilder(true, true);
-            sphere.AddSphere(new Point3D(0, 0, 0), 10); // Center (0,0,0) and radius 1
-            var sphereModel = new GeometryModel3D(sphere.ToMesh(), material);
-            ballModelVisual = new ModelVisual3D();  //ModelVisual allows setting Transforms
-            ballModelVisual.Content = sphereModel;
+            // import ball blender
+            var ballReader = new ObjReader();
+            var ballModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "ball.obj");
+            var tempModelGroup = ballReader.Read(ballModelPath);
+            ballModelVisual = new ModelVisual3D { Content = tempModelGroup };
             MyHelixViewport.Children.Add(ballModelVisual);
+            // // import ball blender
+            // var ballModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "ball.obj");
+            // ball = reader.Read(ballModelPath);
+            // var ballVisual3DModel = new ModelVisual3D { Content = ball };
+            // MyHelixViewport.Children.Add(ballVisual3DModel);
+
             
+            
+            // // test ball mirroring in viewPort
+            // // setup ball in viewport
+            // var material = MaterialHelper.CreateMaterial(Colors.Blue);
+            // var sphere = new MeshBuilder(true, true);
+            // sphere.AddSphere(new Point3D(0, 100, 0), 10);
+            // var sphereModel = new GeometryModel3D(sphere.ToMesh(), material);
+            // ballModelVisual = new ModelVisual3D();  // ModelVisual allows setting Transforms
+            // ballModelVisual.Content = sphereModel;
+            // MyHelixViewport.Children.Add(ballModelVisual);
+
             // set the rotation axis for the game Board model
             var transformGroup = new Transform3DGroup();
             gameBoardRotationX = new AxisAngleRotation3D(new Vector3D(1,0,0), 0);   // global rotation "handle"

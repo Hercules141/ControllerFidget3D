@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libbulletc.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("res/ball.obj")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("res/field.obj")]
 
 

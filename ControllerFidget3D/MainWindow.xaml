@@ -10,9 +10,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         Topmost="False"
-        
-        KeyDown="MainWindow_OnKeyDown"
-        >
+        KeyDown="MainWindow_OnKeyDown">
     
         <Grid>
                 <Grid.RowDefinitions>
@@ -26,18 +24,25 @@
         
                 <helix:HelixViewport3D 
                         Name="MyHelixViewport" 
+                        ModelUpDirection="0, 1, 0"
                         Grid.RowSpan="3" 
-                        ShowCoordinateSystem="False"
-                        ShowCameraInfo="False"
+                        ShowCoordinateSystem="true"
+                        ShowCameraInfo="True"
                         ShowCameraTarget="False"
                         ShowFrameRate="True"
                         IsZoomEnabled="True"
-                        IsPanEnabled="False"
+                        IsPanEnabled="True"
                         IsRotationEnabled="True"
-                        ShowViewCube="False">
-                        <!-- <helix:BoxVisual3D Center="0, 0, 0" Width="2" Length="2" Height="2" Fill="Blue"/> -->
+                        ShowViewCube="True">
+                        <helix:HelixViewport3D.Camera>
+                                <PerspectiveCamera 
+                                        UpDirection="0, 1, 0"
+                                        LookDirection="0, 0, -100"
+                                        Position="0, 0, 100"/>
+                        </helix:HelixViewport3D.Camera>
                         <helix:LightVisual3D>
-                                <helix:SunLight></helix:SunLight>
+                                <helix:DefaultLights></helix:DefaultLights>
+                                <!-- <helix:SunLight></helix:SunLight> -->
                         </helix:LightVisual3D>
                 </helix:HelixViewport3D>
         </Grid>

@@ -26,3 +26,6 @@ X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\obj\Debug\Controlle
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\res\field.obj
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\libbulletc.dll
 X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\BulletSharp.pdb
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\AssimpNet.dll
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\AssimpNet.xml
+X:\Home\Projects\Rider\ControllerFidget3D\ControllerFidget3D\bin\Debug\res\ball.obj
