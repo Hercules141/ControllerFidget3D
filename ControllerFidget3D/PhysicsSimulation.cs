@@ -24,6 +24,11 @@ namespace ControllerFidget3D{
 
         private Timer simulationTimer;
 
+        private List<RigidBody> objects;
+
+        //getter
+        public List<RigidBody> Objects => objects;
+
         // test objects
         RigidBody groundBody;
 
@@ -40,7 +45,7 @@ namespace ControllerFidget3D{
             solver = new SequentialImpulseConstraintSolver();
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-            addTestObject();
+            // addTestScene();
             
             // start simulation loop
             simulationTimer = new Timer(1000/60);
@@ -51,6 +56,30 @@ namespace ControllerFidget3D{
             simulationTimer.Start();
         }
 
+        public void addRigidBody(RigidBody rigidBody)
+        {
+            dynamicsWorld.AddRigidBody(rigidBody);
+            objects.Add(rigidBody);
+        }
+        
+        private void addTestScene()
+        {
+        //     var importer = new AssimpContext();
+        //     var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "game.obj");
+        //     var scene = importer.ImportFile(path, PostProcessPreset.TargetRealTimeMaximumQuality);
+        //
+        //     var listOfTriangleMeshes = getTriangleMeshesFromScene(scene);
+        //     
+        //     listOfTriangleMeshes.ForEach( mesh =>
+        //         {
+        //             dynamicsWorld.AddRigidBody(new RigidBody(new RigidBodyConstructionInfo(1, new DefaultMotionState(), mesh)));
+        //             Console.WriteLine("Added Mesh to physics simulation");
+        //         }
+        //     );
+        }
+
+        
+        
         private void addTestObject()
         {
             // var groundShape = new BoxShape(50, 1, 50);
@@ -61,33 +90,22 @@ namespace ControllerFidget3D{
             // groundBody = new RigidBody(constructionInfo);
             // dynamicsWorld.AddRigidBody(groundBody);
             
-            // test load blender board mesh
-            var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
-            var testBoardMesh = LoadObjMeshAsTriangleMesh(modelPath);
-            
-            var testBoardConstructionInfo = new RigidBodyConstructionInfo(0, new DefaultMotionState(), testBoardMesh);
-            testBoard = new RigidBody(testBoardConstructionInfo);
-            dynamicsWorld.AddRigidBody(testBoard);
-            
-            // load blender ball
-            var ballModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "ball.obj");
-            var ballMesh = LoadObjMeshAsTriangleMesh(ballModelPath);
-            
-            var ballConstructionInfo = new RigidBodyConstructionInfo(1, new DefaultMotionState(), ballMesh);
-            ball = new RigidBody(ballConstructionInfo);
-            ball.Translate(new Vector3(0, 20, 0)); // starting pos
-            dynamicsWorld.AddRigidBody(ball);
-
-            // //ball init
-            // var ballShape = new SphereShape(10);
-            // var ballMotionState = new DefaultMotionState();
-            // var ballMass = 1;
-            // var ballConstructionInfo = new RigidBodyConstructionInfo(ballMass, ballMotionState, ballShape);
+            // // test load blender board mesh
+            // var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
+            // var testBoardMesh = LoadObjMeshAsTriangleMesh(modelPath);
+            //
+            // var testBoardConstructionInfo = new RigidBodyConstructionInfo(0, new DefaultMotionState(), testBoardMesh);
+            // testBoard = new RigidBody(testBoardConstructionInfo);
+            // dynamicsWorld.AddRigidBody(testBoard);
+            //
+            // // load blender ball
+            // var ballModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "ball.obj");
+            // var ballMesh = LoadObjMeshAsTriangleMesh(ballModelPath);
+            //
+            // var ballConstructionInfo = new RigidBodyConstructionInfo(1, new DefaultMotionState(), ballMesh);
             // ball = new RigidBody(ballConstructionInfo);
-            // var startingPos = new Vector3(0, 100, 0);
-            // ball.Translate(startingPos);
+            // ball.Translate(new Vector3(0, 20, 0)); // starting pos
             // dynamicsWorld.AddRigidBody(ball);
-            // dynamicsWorld.Gravity = new Vector3(0, -100, 0);
         }
 
         private void simulationTick()
@@ -112,30 +130,29 @@ namespace ControllerFidget3D{
         }
         
         // helper functions
-        BvhTriangleMeshShape LoadObjMeshAsTriangleMesh(string filePath)
-        {
-            var importer = new AssimpContext();
-            var scene = importer.ImportFile(filePath, PostProcessPreset.TargetRealTimeMaximumQuality);
+       public List<BvhTriangleMeshShape> getTriangleMeshesFromScene(Scene scene)
+       {
+           return scene.Meshes.Select(m => MeshToTriangleMesh(m)).ToList();
+       }
 
-            // take first mesh from scene (best only use one)
-            var mesh = scene.Meshes[0];
-            var vertices = mesh.Vertices.Select(v => new Vector3(v.X, v.Y, v.Z)).ToList();
-            var indices = mesh.GetIndices().ToList();
+       BvhTriangleMeshShape MeshToTriangleMesh(Mesh mesh)
+       {
+           var vertices = mesh.Vertices.Select(v => new Vector3(v.X, v.Y, v.Z)).ToList();
+           var indices = mesh.GetIndices().ToList();
 
-            // to triangle mesh
-            var triangleMesh = new TriangleMesh();
+           // to triangle mesh
+           var triangleMesh = new TriangleMesh();
 
-            for (int i = 0; i < indices.Count; i += 3)
-            {
-                Vector3 vertex1 = vertices[indices[i]];
-                Vector3 vertex2 = vertices[indices[i + 1]];
-                Vector3 vertex3 = vertices[indices[i + 2]];
+           for (int i = 0; i < indices.Count; i += 3)
+           {
+               Vector3 vertex1 = vertices[indices[i]];
+               Vector3 vertex2 = vertices[indices[i + 1]];
+               Vector3 vertex3 = vertices[indices[i + 2]];
 
-                triangleMesh.AddTriangle(vertex1, vertex2, vertex3);
-            }
+               triangleMesh.AddTriangle(vertex1, vertex2, vertex3);
+           }
 
-            return new BvhTriangleMeshShape(triangleMesh, true);
-        }
+           return new BvhTriangleMeshShape(triangleMesh, true);
+       }
     }
-    
 }

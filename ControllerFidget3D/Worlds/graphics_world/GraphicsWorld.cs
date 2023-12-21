@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Timers;
 using System.Windows.Media.Media3D;
+using Assimp;
 using HelixToolkit.Wpf;
+using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace ControllerFidget3D
 {
@@ -71,5 +73,37 @@ namespace ControllerFidget3D
         //     // check maybe just have the timer do this port
         //     throw new NotImplementedException();
         // }
+        
+        public MeshGeometry3D ConvertAssimpMeshToMeshGeometry3D(Mesh assimpMesh)
+        {
+            var meshGeometry3D = new MeshGeometry3D();
+
+            // Extract vertices
+            foreach (var vertex in assimpMesh.Vertices)
+            {
+                meshGeometry3D.Positions.Add(new Point3D(vertex.X, vertex.Y, vertex.Z));
+            }
+
+            // Extract normals (if available)
+            if (assimpMesh.HasNormals)
+            {
+                foreach (var normal in assimpMesh.Normals)
+                {
+                    meshGeometry3D.Normals.Add(new Vector3D(normal.X, normal.Y, normal.Z));
+                }
+            }
+
+            // Extract indices
+            foreach (var face in assimpMesh.Faces)
+            {
+                foreach (var index in face.Indices)
+                {
+                    meshGeometry3D.TriangleIndices.Add(index);
+                }
+            }
+
+            return meshGeometry3D;
+        }
     }
+
 }
