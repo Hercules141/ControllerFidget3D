@@ -37,8 +37,8 @@
                         <helix:HelixViewport3D.Camera>
                                 <PerspectiveCamera 
                                         UpDirection="0, 1, 0"
-                                        LookDirection="0, 0, -100"
-                                        Position="0, 0, 100"/>
+                                        LookDirection="50, -100, -100"
+                                        Position="-50, 100, 100"/>
                         </helix:HelixViewport3D.Camera>
                         <helix:LightVisual3D>
                                 <helix:DefaultLights></helix:DefaultLights>
