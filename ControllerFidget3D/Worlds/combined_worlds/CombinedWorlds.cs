@@ -20,7 +20,7 @@ namespace ControllerFidget3D
         public CombinedWorlds()
         {
 
-            setupGraphicsWorld();
+            // setupGraphicsWorld();
             setupPhyicsWorld();
 
         }
@@ -30,10 +30,10 @@ namespace ControllerFidget3D
             _physicsWorld = new PhysicsWorld();
         }
 
-        private void setupGraphicsWorld()
-        {
-            _graphicsWorld = new GraphicsWorld();
-        }
+        // private void setupGraphicsWorld()
+        // {
+        //     _graphicsWorld = new GraphicsWorld();
+        // }
 
 
         private void renderTick()

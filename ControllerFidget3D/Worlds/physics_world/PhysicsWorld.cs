@@ -40,10 +40,10 @@ namespace ControllerFidget3D{
             solver = new SequentialImpulseConstraintSolver();
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-            addTestObject();
+            // addTestObject();
             
             // start simulation loop
-            simulationTimer = new Timer(1000/60);
+            simulationTimer = new Timer(1000/60); // 60 updates/sec
             simulationTimer.Elapsed += (sender, args) =>
             {
                 simulationTick();

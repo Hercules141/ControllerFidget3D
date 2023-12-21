@@ -1,15 +1,11 @@
 ﻿
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Timers;
-using System.Windows.Media.Media3D;
 using Assimp;
 using BulletSharp;
 using BulletSharp.Math;
-using HelixToolkit.Wpf;
 
 
 namespace ControllerFidget3D{
@@ -26,15 +22,12 @@ namespace ControllerFidget3D{
 
         private List<RigidBody> objects;
 
-        //getter
-        public List<RigidBody> Objects => objects;
-
         // test objects
-        RigidBody groundBody;
-
-        private RigidBody testBoard;
-        public RigidBody ball;
-        public Vector3 ballPosition;
+        // RigidBody groundBody;
+        //
+        // private RigidBody testBoard;
+        // public RigidBody ball;
+        // public Vector3 ballPosition;
 
 
         public PhysicsSimulation()
@@ -45,7 +38,8 @@ namespace ControllerFidget3D{
             solver = new SequentialImpulseConstraintSolver();
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-            // addTestScene();
+            objects = new List<RigidBody>();
+        // addTestScene();
             
             // start simulation loop
             simulationTimer = new Timer(1000/60);
@@ -60,6 +54,11 @@ namespace ControllerFidget3D{
         {
             dynamicsWorld.AddRigidBody(rigidBody);
             objects.Add(rigidBody);
+        }
+
+        public List<RigidBody> getRigidBodies()
+        {
+            return objects;
         }
         
         private void addTestScene()
@@ -110,24 +109,24 @@ namespace ControllerFidget3D{
 
         private void simulationTick()
         {
-            dynamicsWorld.StepSimulation(1 / 60f);
+            dynamicsWorld.StepSimulation(1000/60);
             // Console.WriteLine("World User Info: " + dynamicsWorld.WorldUserInfo);
             // Console.WriteLine("ground Motion State: " + groundBody.MotionState);
             // Console.WriteLine("ball world transfor basis: " + ball.MotionState.WorldTransform.Basis);
             // Console.WriteLine("ball info" + ball.);
             
             // test
-            Matrix ballTransform;
-            ball.MotionState.GetWorldTransform(out ballTransform);
-            ballPosition = ballTransform.Origin;
-
-            Console.WriteLine("Ball Pos: " + ballPosition);
+            // Matrix ballTransform;
+            // ball.MotionState.GetWorldTransform(out ballTransform);
+            // ballPosition = ballTransform.Origin;
+            //
+            // Console.WriteLine("Ball Pos: " + ballPosition);
         }
 
-        public void applyForceToBall(Vector3 forceVector)
-        {
-            ball.ApplyForce(forceVector, ball.CenterOfMassPosition);
-        }
+        // public void applyForceToBall(Vector3 forceVector)
+        // {
+        //     ball.ApplyForce(forceVector, ball.CenterOfMassPosition);
+        // }
         
         // helper functions
        public List<BvhTriangleMeshShape> getTriangleMeshesFromScene(Scene scene)

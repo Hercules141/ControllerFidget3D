@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.AccessControl;
 using System.Timers;
 using System.Windows.Media.Media3D;
 using Assimp;
@@ -9,53 +10,50 @@ using Vector3D = System.Windows.Media.Media3D.Vector3D;
 
 namespace ControllerFidget3D
 {
-    public class GraphicsWorld : IGraphicsWorld
+    public class GraphicsWorld// : IGraphicsWorld
     {
         private HelixViewport3D viewport;
         private Timer renderTimer;
 
-        private List<GraphicsBody> bodies;
-
-        public GraphicsWorld()
+        // private List<GraphicsBody> bodies;
+        private List<ModelVisual3D> models;
+        
+        private Action renderTick;
+        
+        public GraphicsWorld(HelixViewport3D viewport, Action renderTick) // stupid but I need more architecture to be able to cross access phsics and graphics objects for updating and synchronizing
         {
+            this.renderTick = renderTick;
+            this.viewport = viewport;
+            
+            models = new List<ModelVisual3D>();
+            
             setupHelix();
-            setupRenderTimer();
         }
 
         private void setupHelix()
         {
-             // import blender model board
-            // var reader = new ObjReader();
-            //
-            // var model3DGroup = new Model3DGroup();
-            // var gameBoardModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "field.obj");
-            //
-            // gameBoard = reader.Read(gameBoardModelPath);
-            // model3DGroup.Children.Add(gameBoard);
-            // var modelVisual3DModel = new ModelVisual3D { Content = model3DGroup };
-            // viewport.Children.Add(modelVisual3DModel);
-            //
-            // // import ball blender
-            // var ballReader = new ObjReader();
-            // var ballModelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "ball.obj");
-            // var tempModelGroup = ballReader.Read(ballModelPath);
-            // ballModelVisual = new ModelVisual3D { Content = tempModelGroup };
-            // viewport.Children.Add(ballModelVisual);
-
+            setupRenderTimer();
         }
 
-        public void addGraphicsBody(GraphicsBody body)
+        // public void addGraphicsBody(GraphicsBody body)
+        // {
+        //     bodies.Add(body);
+        //     // have the body heava a mesh somehow
+        //     // var modelVisual3DModel = new ModelVisual3D { Content = /*have some uniform mesh and pos data please*/ };
+        //     // viewport.Children.Add(modelVisual3DModel);
+        // }
+
+        public void addObject(ModelVisual3D model)
         {
-            bodies.Add(body);
-            // have the body heava a mesh somehow
-            // var modelVisual3DModel = new ModelVisual3D { Content = /*have some uniform mesh and pos data please*/ };
-            // viewport.Children.Add(modelVisual3DModel);
+            viewport.Children.Add(model);
+            
+            models.Add(model);
         }
-
+        
         private void setupRenderTimer()
         {
             // set Render Timer
-            renderTimer = new Timer(16);
+            renderTimer = new Timer(1000/40);
             renderTimer.Elapsed += (sender, args) =>
             {
                 renderTick();
@@ -63,10 +61,10 @@ namespace ControllerFidget3D
             renderTimer.Start();
         }
 
-        private void renderTick()
-        {
-            
-        }
+        // private renderTick()
+        // {
+        //     
+        // }
 
         // public void drawGraphicsBody()
         // {
@@ -103,6 +101,11 @@ namespace ControllerFidget3D
             }
 
             return meshGeometry3D;
+        }
+
+        public List<ModelVisual3D> GetObjects()
+        {
+            return models;
         }
     }
 

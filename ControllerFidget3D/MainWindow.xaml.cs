@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -21,33 +23,37 @@ namespace ControllerFidget3D
     {
         private XBoxController controller = new XBoxController();
         
-        // physics world 
+        // worlds 
         private PhysicsSimulation physicsWorld;
+        private GraphicsWorld graphicsWorld;
         
         // timers
         private Timer controllerTimer;
-        private Timer renderTimer;
 
         // objects
-        private Model3DGroup gameBoard;
-        private AxisAngleRotation3D gameBoardRotationX;
-        private AxisAngleRotation3D gameBoardRotationY;
-
-        private ModelVisual3D ballModelVisual;
-        private Transform3D ballTransform;
+        // private Model3DGroup gameBoard;
+        // private AxisAngleRotation3D gameBoardRotationX;
+        // private AxisAngleRotation3D gameBoardRotationY;
+        //
+        // private ModelVisual3D ballModelVisual;
+        // private Transform3D ballTransform;
 
         public MainWindow()
         {
             InitializeComponent();
-
-            setUpHelix();
-
-            setUpPhysics();
-
+            
             setupControllerHandling();
             
+            setUpPhysicsSimulation();
+
+            setupGraphicsWorld();
+
+
             /*test*/
-            
+            var index = 0;
+            var mass = 0;
+            var startingPos = new Vector3(0, 0, 0);
+
             var importer = new AssimpContext();
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "res", "game.obj");
             var scene = importer.ImportFile(path, PostProcessPreset.TargetRealTimeMaximumQuality);
@@ -56,18 +62,37 @@ namespace ControllerFidget3D
             var listOfTriangleMeshes = physicsWorld.getTriangleMeshesFromScene(scene); // non static reference, just test
             listOfTriangleMeshes.ForEach( mesh =>
                 {
-                    physicsWorld.addRigidBody(new RigidBody(new RigidBodyConstructionInfo(1, new DefaultMotionState(), mesh)));
+                    /* these if statements are only to set certain properties bc .obj might need to be imported differently to find by name.
+                        todo remember: mesh is single object with origin at 0,0,0 but mesh position is persisted after blender export (maybe retrieveble by node transform)
+                        starting index only applied to physical object here, graphical object needs seperate transform if this is the route to go
+                    */
+                    if (index == 0) {
+                        mass = 0; // first object, disable gravity
+                        startingPos = new Vector3(0, 0, 0);
+
+                    }
+                    else {
+                        mass = 1;
+                        // startingPos = new Vector3(0, 100, 0);
+                        startingPos = new Vector3(0, 0, 0);
+
+                    }
+
+                    var startingTransform = Matrix.Translation(startingPos);
+                    physicsWorld.addRigidBody(new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(startingTransform), mesh)));
+                    index++;
                     Console.WriteLine("Added Mesh to physics simulation");
+                       
                 }
             );
             
             // add visual meshes
-            var translatedMeshes = scene.Meshes.Select(mesh => new GraphicsWorld().ConvertAssimpMeshToMeshGeometry3D(mesh)).ToList();
+            var translatedMeshes = scene.Meshes.Select(mesh => graphicsWorld.ConvertAssimpMeshToMeshGeometry3D(mesh)).ToList(); 
 
             translatedMeshes.ForEach(mesh =>
             {
                 var material = new DiffuseMaterial(new SolidColorBrush(Colors.Yellow));
-                MyHelixViewport.Children.Add(new ModelVisual3D{Content = new GeometryModel3D(mesh, material)});
+                graphicsWorld.addObject(new ModelVisual3D{Content = new GeometryModel3D(mesh, material)}); // todo fixme mesh is added as object without setting transform, ignoring scene location (mesh data not enough, origin!)
             });
             
         }
@@ -75,52 +100,58 @@ namespace ControllerFidget3D
         private void setupControllerHandling()
         {
             // set Controller Event Handler
-            controllerTimer = new Timer(16);
+            controllerTimer = new Timer(1000/60); // ca. 60 Polls/s
             controllerTimer.Elapsed += (sender, args) => OnControllerPoll();
             controllerTimer.Start();       
         }
 
-        private void renderTick()
-        {
-            Dispatcher.Invoke(() => {
-                // // combine physics pos downstream to visual ball
-                // var ballPosX = physicsWorld.ballPosition.X;
-                // var ballPosY = physicsWorld.ballPosition.Y;
-                // var ballPosZ = physicsWorld.ballPosition.Z;
-                //
-                // ballModelVisual.Transform = new TranslateTransform3D(new Vector3D(ballPosX, ballPosY, ballPosZ));
-
-                updateGraphicsWithPhysics();
-            });
-        }
+        // private void renderTick()
+        // {
+        //     Dispatcher.Invoke(() => {
+        //         // // combine physics pos downstream to visual ball
+        //         // var ballPosX = physicsWorld.ballPosition.X;
+        //         // var ballPosY = physicsWorld.ballPosition.Y;
+        //         // var ballPosZ = physicsWorld.ballPosition.Z;
+        //         //
+        //         // ballModelVisual.Transform = new TranslateTransform3D(new Vector3D(ballPosX, ballPosY, ballPosZ));
+        //
+        //         updateGraphicsWithPhysics();
+        //     });
+        // }
 
         private void updateGraphicsWithPhysics()
         {
-            var bulletObjects = physicsWorld.Objects;
-            var helixobjects = GraphicsWorld.obj
-            foreach (var bulletObject in bulletObjects)
-            {
-                // Physics Postition
-                Matrix bulletTransform;
-                bulletObject.MotionState.GetWorldTransform(out bulletTransform);
+                
+            var bulletObjects = physicsWorld.getRigidBodies();
+            var helixobjects = graphicsWorld.GetObjects();
+            
+            if (bulletObjects == null || helixobjects == null || bulletObjects.Count != helixobjects.Count) return;
+            Console.WriteLine("updating positions");
+            Dispatcher.Invoke( () => {
+                for (var i = 0; i < bulletObjects.Count; i++)
+                {
+                    // Physics Postition
+                    Matrix bulletTransform;
+                    bulletObjects[i].MotionState.GetWorldTransform(out bulletTransform);    Console.WriteLine("bullet Object index: "  + i + ", Position: " + bulletTransform.Origin);
 
-                // Convert Bullet transform to Helix transform
-                var transform = new MatrixTransform3D(ToMedia3DMatrix(bulletTransform));
-                visual.Transform = transform;
-            }
+                    // Convert Bullet transform to Helix transform
+                    var helixTransform = new MatrixTransform3D(ToMedia3DMatrix(bulletTransform));
+                    helixobjects[i].Transform = helixTransform;                         Console.WriteLine("helix Object index: "  + i + ", Position: " + helixTransform.Value);
+                }
+            });
         }
 
         private Matrix3D ToMedia3DMatrix(Matrix bulletTransform)
         {
             return new Matrix3D(
-                bulletMatrix.M11, bulletMatrix.M12, bulletMatrix.M13, bulletMatrix.M14,
-                bulletMatrix.M21, bulletMatrix.M22, bulletMatrix.M23, bulletMatrix.M24,
-                bulletMatrix.M31, bulletMatrix.M32, bulletMatrix.M33, bulletMatrix.M34,
-                bulletMatrix.M41, bulletMatrix.M42, bulletMatrix.M43, bulletMatrix.M44);
+                bulletTransform.M11, bulletTransform.M12, bulletTransform.M13, bulletTransform.M14, // x
+                bulletTransform.M21, bulletTransform.M22, bulletTransform.M23, bulletTransform.M24, // y
+                bulletTransform.M31, bulletTransform.M32, bulletTransform.M33, bulletTransform.M34,// z
+                bulletTransform.M41, bulletTransform.M42, bulletTransform.M43, bulletTransform.M44); // standard transformation (perspectives)
 
         }
 
-        private void setUpPhysics()
+        private void setUpPhysicsSimulation()
         {
             physicsWorld = new PhysicsSimulation();
         }
@@ -147,21 +178,23 @@ namespace ControllerFidget3D
         {
             // handle x rotation
             var xAngle = controller.rightThumb.X * 30;   // 30 deg tiltable table
+            // gameBoardRotationX.Angle = xAngle;
             // gameBoard.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1,0,0), xAngle));
-            gameBoardRotationX.Angle = xAngle;
-            
+
             // handle y rotation
             var yAngle = controller.rightThumb.Y * 30;
+            // gameBoardRotationY.Angle = yAngle;
             // gameBoard.Transform = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0,1,0), yAngle));
-            gameBoardRotationY.Angle = yAngle;
 
             // move ball
-            physicsWorld.applyForceToBall(new Vector3(controller.leftThumb.X, 0, controller.leftThumb.Y) * 100);
+            // physicsWorld.applyForceToBall(new Vector3(controller.leftThumb.X, 0, controller.leftThumb.Y) * 100);
         }
 
 
-        private void setUpHelix()
+        private void setupGraphicsWorld()
         {
+            graphicsWorld = new GraphicsWorld(MyHelixViewport, updateGraphicsWithPhysics);
+            
             // import blender model board
             // var reader = new ObjReader();
             //
@@ -207,13 +240,13 @@ namespace ControllerFidget3D
             
             
             
-            // set Render Timer
-            renderTimer = new Timer(16);
-            renderTimer.Elapsed += (sender, args) =>
-            {
-                renderTick();
-            };
-            renderTimer.Start();
+            // // set Render Timer
+            // renderTimer = new Timer(16);
+            // renderTimer.Elapsed += (sender, args) =>
+            // {
+            //     renderTick();
+            // };
+            // renderTimer.Start();
         }
 
 
